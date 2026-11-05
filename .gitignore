@@ -1,0 +1,37 @@
+# ========================================================
+# Git Ignore: Smart Waste AI Monorepo
+# ========================================================
+
+# 1. Frontend (Node.js)
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+*.log
+
+# 2. Backend (Python)
+**/__pycache__/
+*.py[cod]
+*$py.class
+backend/venv/
+backend/.venv/
+venv/
+.env
+
+# 3. Ảnh người dùng tải lên khi test API (giữ lại thư mục rỗng)
+backend/uploads/originals/*
+!backend/uploads/originals/.gitkeep
+backend/uploads/predictions/*
+!backend/uploads/predictions/.gitkeep
+
+# 4. Trọng số YOLO & Dataset nặng (> 100MB)
+backend/weights/*.pt
+!backend/weights/README.md
+ai_training/dataset/*
+!ai_training/dataset/.gitkeep
+runs/
+
+# 5. IDEs & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
