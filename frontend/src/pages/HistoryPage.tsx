@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import type { HistoryItem, HistoryListResponse } from '../types/waste';
 import { WasteApiService } from '../services/api';
 import { HistoryFilter } from '../components/history/HistoryFilter';
@@ -24,6 +24,50 @@ export const HistoryPage: React.FC = () => {
 
   // Selected item for modal
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
+  const [deletingId, setDeletingId] = useState<string | number | null>(null);
+  const detailRequest = useRef(0);
+
+  const handleSelectItem = async (item: HistoryItem) => {
+    const requestId = ++detailRequest.current;
+    setActiveItem(item);
+    try {
+      const detail = await WasteApiService.getHistoryDetail(item.id);
+      if (requestId === detailRequest.current && detail) setActiveItem(detail);
+    } catch (err) {
+      console.error(err);
+      if (requestId === detailRequest.current) {
+        setError('Không thể tải chi tiết lần nhận diện.');
+      }
+    }
+  };
+
+  const handleCloseDetail = () => {
+    detailRequest.current += 1;
+    setActiveItem(null);
+  };
+
+  const handleDeleteItem = async (item: HistoryItem) => {
+    const confirmed = window.confirm(
+      `Xóa lượt nhận diện #${item.id}? Bản ghi, các vật thể phát hiện và hai ảnh đã lưu sẽ bị xóa vĩnh viễn.`
+    );
+    if (!confirmed) return;
+    setDeletingId(item.id);
+    setError(null);
+    try {
+      await WasteApiService.deleteHistory(item.id);
+      if (String(activeItem?.id) === String(item.id)) handleCloseDetail();
+      if (data.items.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      } else {
+        await fetchHistory();
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Không thể xóa lượt nhận diện. Vui lòng thử lại.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const fetchHistory = useCallback(async () => {
     setLoading(true);
@@ -120,14 +164,16 @@ export const HistoryPage: React.FC = () => {
         currentPage={data.page}
         limit={data.limit}
         onPageChange={(pg) => setCurrentPage(pg)}
-        onSelectItem={(item) => setActiveItem(item)}
+        onSelectItem={handleSelectItem}
+        onDeleteItem={handleDeleteItem}
+        deletingId={deletingId}
         loading={loading}
       />
 
       {/* Modal chi tiết một lần nhận diện */}
       <HistoryDetailModal
         isOpen={Boolean(activeItem)}
-        onClose={() => setActiveItem(null)}
+        onClose={handleCloseDetail}
         item={activeItem}
       />
     </div>

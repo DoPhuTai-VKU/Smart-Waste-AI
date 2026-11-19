@@ -75,6 +75,7 @@ export const WasteApiService = {
     formData.append('file', file);
 
     const response = await client.post<PredictionResponse>('/api/predict', formData, {
+      timeout: 120000,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -147,8 +148,27 @@ export const WasteApiService = {
       return found || null;
     }
 
-    const response = await client.get<HistoryItem>(`/api/history/${id}`);
-    return response.data;
+    const response = await client.get<PredictionResponse>(`/api/history/${id}`);
+    const detail = response.data;
+    return {
+      id: detail.id,
+      original_image_url: detail.original_image_url,
+      processed_image_url: detail.processed_image_url,
+      primary_label: detail.primary_label,
+      category: detail.primary_category,
+      confidence: detail.confidence,
+      created_at: detail.timestamp,
+      treatment_guide: detail.treatment_guide,
+      predictions: detail.predictions,
+    };
+  },
+
+  async deleteHistory(id: string | number): Promise<void> {
+    if (isMockMode()) {
+      mockHistoryStore = mockHistoryStore.filter((item) => String(item.id) !== String(id));
+      return;
+    }
+    await client.delete(`/api/history/${encodeURIComponent(String(id))}`);
   },
 
   /**

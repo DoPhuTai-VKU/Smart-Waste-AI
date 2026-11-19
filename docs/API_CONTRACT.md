@@ -30,18 +30,18 @@ Tài liệu này được soạn thảo bởi **Thành viên 2 (Frontend & Syste
   "timestamp": "2026-11-02 17:30:00",
   "original_image_url": "http://localhost:8000/uploads/originals/img_105.jpg",
   "processed_image_url": "http://localhost:8000/uploads/predictions/img_105_yolo.jpg",
-  "primary_label": "Chai nhựa PET",
+  "primary_label": "plastic",
   "primary_category": "plastic",
   "confidence": 0.95,
-  "treatment_guide": "Làm rỗng nước, vặn chặt nắp và làm bẹp chai trước khi bỏ vào thùng rác tái chế màu vàng.",
+  "treatment_guide": "Làm sạch, để khô và phân loại theo khả năng thu gom tại địa phương.",
   "predictions": [
     {
       "id": "det-1",
-      "label": "Chai nhựa PET",
+      "label": "plastic",
       "category": "plastic",
       "confidence": 0.95,
       "bbox": [120, 85, 340, 520],
-      "treatment_guide": "Nhựa PET có thể tái chế thành hạt nhựa hoặc sợi polyester."
+      "treatment_guide": "Làm sạch, để khô và phân loại theo khả năng thu gom tại địa phương."
     }
   ]
 }
@@ -50,7 +50,9 @@ Tài liệu này được soạn thảo bởi **Thành viên 2 (Frontend & Syste
 > **Ghi chú về Bounding Box & Ảnh**:
 > - `processed_image_url`: Ảnh đã được Backend vẽ sẵn khung Bounding Box (Ưu tiên hiển thị mặc định).
 > - `bbox`: Mảng 4 tọa độ pixel `[x_min, y_min, x_max, y_max]` tương ứng trên ảnh gốc. Frontend có tích hợp sẵn Canvas để có thể tự vẽ overlay đè lên ảnh nếu cần.
-> - `primary_category`: Giá trị thuộc 1 trong các nhóm chính: `plastic`, `paper`, `metal`, `glass`, `organic` (hoặc nhóm mới nếu Thành viên 1 bổ sung vào dataset).
+> - `primary_category` và `predictions[].category`: Một trong 7 waste categories có key trùng với detection class: `banana-peel`, `glass`, `metal`, `orange-peel`, `paper`, `plastic`, `styrofoam`.
+
+* **Không phát hiện vật thể phù hợp (422)**: Sau khi phân tích ảnh, nếu không có box nào thuộc 7 class đạt ngưỡng confidence, API trả `{ "detail": "Không phát hiện loại rác phù hợp" }`. Ảnh tải từ ngoài dataset vẫn được phân tích bình thường.
 
 ---
 
@@ -61,7 +63,7 @@ Tài liệu này được soạn thảo bởi **Thành viên 2 (Frontend & Syste
 * **Query Parameters**:
   * `page` (int, default: `1`): Trang hiện tại.
   * `limit` (int, default: `6` hoặc `10`): Số lượng bản ghi trên một trang.
-  * `category` (string, optional): Lọc theo nhóm rác (`plastic`, `paper`, `metal`, `glass`, `organic`, hoặc `all`).
+  * `category` (string, optional): Lọc theo 1 trong 7 category key ở mục 3, hoặc `all`.
   * `search` (string, optional): Tìm kiếm theo từ khóa nhãn rác.
   * `sortBy` (string, optional): `newest` (mới nhất), `oldest` (cũ nhất), `confidence` (độ tin cậy cao nhất).
 
@@ -76,11 +78,11 @@ Tài liệu này được soạn thảo bởi **Thành viên 2 (Frontend & Syste
       "id": 105,
       "original_image_url": "http://localhost:8000/uploads/originals/img_105.jpg",
       "processed_image_url": "http://localhost:8000/uploads/predictions/img_105_yolo.jpg",
-      "primary_label": "Chai nhựa PET",
+      "primary_label": "plastic",
       "category": "plastic",
       "confidence": 0.95,
       "created_at": "2026-11-02 17:30:00",
-      "treatment_guide": "Làm rỗng nước, vặn chặt nắp và làm bẹp chai trước khi bỏ vào thùng rác tái chế màu vàng."
+      "treatment_guide": "Làm sạch, để khô và phân loại theo khả năng thu gom tại địa phương."
     }
   ]
 }
@@ -104,15 +106,17 @@ Tài liệu này được soạn thảo bởi **Thành viên 2 (Frontend & Syste
 ```json
 {
   "total_scans": 1248,
-  "most_common_type": "Rác nhựa (Plastic)",
+  "most_common_type": "Nhựa",
   "average_confidence": 94.2,
   "today_scans": 28,
   "category_counts": [
-    { "category": "Rác nhựa", "categoryKey": "plastic", "count": 486, "percentage": 39, "color": "#F59E0B" },
-    { "category": "Rác giấy", "categoryKey": "paper", "count": 312, "percentage": 25, "color": "#3B82F6" },
-    { "category": "Kim loại", "categoryKey": "metal", "count": 198, "percentage": 16, "color": "#64748B" },
-    { "category": "Thủy tinh", "categoryKey": "glass", "count": 142, "percentage": 11, "color": "#10B981" },
-    { "category": "Rác hữu cơ", "categoryKey": "organic", "count": 110, "percentage": 9, "color": "#84CC16" }
+    { "category": "Nhựa", "categoryKey": "plastic", "count": 386, "percentage": 31, "color": "#3B82F6" },
+    { "category": "Giấy", "categoryKey": "paper", "count": 312, "percentage": 25, "color": "#C4A484" },
+    { "category": "Kim loại", "categoryKey": "metal", "count": 198, "percentage": 16, "color": "#9CA3AF" },
+    { "category": "Thủy tinh", "categoryKey": "glass", "count": 142, "percentage": 11, "color": "#67C5B5" },
+    { "category": "Vỏ chuối", "categoryKey": "banana-peel", "count": 55, "percentage": 4, "color": "#D4A017" },
+    { "category": "Vỏ cam", "categoryKey": "orange-peel", "count": 55, "percentage": 4, "color": "#F97316" },
+    { "category": "Xốp EPS", "categoryKey": "styrofoam", "count": 100, "percentage": 8, "color": "#E5E7EB" }
   ],
   "time_series": [
     { "date": "27/10", "count": 32 },
@@ -128,13 +132,26 @@ Tài liệu này được soạn thảo bởi **Thành viên 2 (Frontend & Syste
 
 ---
 
-## 3. Danh mục 5 nhóm rác chính (Hỗ trợ mở rộng động)
+### 2.5. Xóa một lượt nhận diện (`DELETE /api/history/{id}`)
 
-Frontend đã thiết lập cấu hình tập trung tại `src/constants/wasteCategories.ts`:
-1. **Plastic (Rác nhựa)**: Thùng vàng/cam (`#F59E0B`)
-2. **Paper (Rác giấy)**: Thùng xanh dương (`#3B82F6`)
-3. **Metal (Kim loại)**: Thùng xám/bạc (`#64748B`)
-4. **Glass (Thủy tinh)**: Thùng xanh ngọc (`#10B981`)
-5. **Organic (Rác hữu cơ)**: Thùng xanh lá (`#84CC16`)
+* **Endpoint**: `DELETE /api/history/{id}`
+* **Mô tả**: Xóa một lượt nhận diện trong MySQL. Các vật thể thuộc lượt đó được xóa theo khóa ngoại; ảnh gốc và ảnh đã vẽ bounding box do hệ thống lưu cũng được gỡ khỏi `uploads/`.
+* **Response Success**: `204 No Content`, không có response body.
+* **ID không tồn tại**: `404 Not Found`, `{ "detail": "Detection not found" }`.
+* Frontend yêu cầu người dùng xác nhận trước khi gửi lệnh xóa. Danh sách History và số liệu Dashboard được tải lại từ Backend sau khi xóa.
 
-> Frontend được lập trình an toàn: Nếu Backend trả về một class mới ngoài 5 nhóm trên, hệ thống sẽ tự động gán nhãn và tạo màu badge tự động, không gây gián đoạn giao diện!
+---
+
+## 3. Danh mục 7 waste categories
+
+Mỗi detection class của YOLO được giữ nguyên và ánh xạ một-một tới waste category cùng key. Màu dưới đây là **màu nhận diện vật liệu trên giao diện**, không quy định màu thùng thu gom tại địa phương. Frontend cấu hình tập trung tại `src/constants/wasteCategories.ts`; backend và MySQL dùng cùng tên, màu, hướng dẫn.
+
+| Category key | Tên hiển thị | Màu nhận diện | Hướng dẫn xử lý |
+| --- | --- | --- | --- |
+| `banana-peel` | Vỏ chuối | `#D4A017` | Thu gom riêng cùng rác hữu cơ; có thể ủ phân nếu phù hợp. |
+| `glass` | Thủy tinh | `#67C5B5` | Rửa sạch; bọc và thu gom riêng mảnh vỡ. |
+| `metal` | Kim loại | `#9CA3AF` | Làm sạch lon, hộp; chú ý cạnh sắc. |
+| `orange-peel` | Vỏ cam | `#F97316` | Thu gom cùng rác hữu cơ; bỏ tem, bao bì trước khi ủ phân. |
+| `paper` | Giấy | `#C4A484` | Giữ khô và sạch; tách phần dính dầu hoặc vật liệu khác. |
+| `plastic` | Nhựa | `#3B82F6` | Làm sạch, để khô và phân loại theo khả năng thu gom tại địa phương. |
+| `styrofoam` | Xốp EPS | `#E5E7EB` | Giữ sạch, khô; kiểm tra điểm thu gom chuyên biệt, không mặc định bỏ chung với nhựa tái chế. |

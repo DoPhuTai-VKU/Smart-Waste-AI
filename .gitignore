@@ -26,6 +26,7 @@ backend/uploads/predictions/*
 # 4. Trọng số YOLO & Dataset nặng (> 100MB)
 backend/weights/*.pt
 !backend/weights/README.md
+/yolov8s.pt
 ai_training/dataset/*
 !ai_training/dataset/.gitkeep
 runs/

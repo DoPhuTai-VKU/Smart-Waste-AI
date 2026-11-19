@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import axios from 'axios';
 import {
   Sparkles,
   Loader2,
@@ -13,6 +14,7 @@ import { ImageDetectionViewer } from '../components/detection/ImageDetectionView
 import { DetectionResultCard } from '../components/detection/DetectionResultCard';
 
 export const DetectionPage: React.FC = () => {
+  const newFileInput = useRef<HTMLInputElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -21,6 +23,7 @@ export const DetectionPage: React.FC = () => {
   const [result, setResult] = useState<PredictionResponse | null>(null);
 
   const handleFileSelect = (file: File) => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setSelectedFile(file);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
@@ -58,11 +61,13 @@ export const DetectionPage: React.FC = () => {
       setResult(response);
     } catch (err: unknown) {
       console.error(err);
-      const message =
-        err instanceof Error
+      const apiDetail = axios.isAxiosError<{ detail?: string }>(err)
+        ? err.response?.data?.detail
+        : undefined;
+      const fallbackMessage = err instanceof Error
           ? err.message
           : 'Không thể kết nối đến API nhận diện. Vui lòng kiểm tra lại kết nối Backend hoặc chuyển sang chế độ Demo Mock API.';
-      setError(message);
+      setError(typeof apiDetail === 'string' ? apiDetail : fallbackMessage);
     } finally {
       setLoading(false);
       setLoadingStage('');
@@ -73,6 +78,7 @@ export const DetectionPage: React.FC = () => {
   const handlePickSample = async (sampleUrl: string, sampleName: string) => {
     try {
       const response = await fetch(sampleUrl);
+      if (!response.ok) throw new Error(`Sample image unavailable: ${response.status}`);
       const blob = await response.blob();
       const file = new File([blob], sampleName, { type: 'image/jpeg' });
       handleFileSelect(file);
@@ -83,6 +89,13 @@ export const DetectionPage: React.FC = () => {
 
   return (
     <div className="space-y-7">
+      <input ref={newFileInput} type="file" accept="image/jpeg,image/png,image/webp"
+        className="hidden" aria-label="Chọn ảnh mới để nhận diện"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) handleFileSelect(file);
+          event.target.value = '';
+        }} />
       {/* Header bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -186,19 +199,19 @@ export const DetectionPage: React.FC = () => {
                 {[
                   {
                     name: 'Chai nhựa',
-                    url: 'https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?auto=format&fit=crop&w=400&q=80',
+                    url: '/samples/plastic-bottle.jpg',
                   },
                   {
-                    name: 'Hộp carton',
-                    url: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=400&q=80',
+                    name: 'Phong bì giấy',
+                    url: '/samples/paper-envelope.jpg',
                   },
                   {
-                    name: 'Lon nhôm',
-                    url: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=400&q=80',
+                    name: 'Lon kim loại',
+                    url: '/samples/metal-can.jpg',
                   },
                   {
                     name: 'Vỏ chuối',
-                    url: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=400&q=80',
+                    url: '/samples/banana-peel.jpg',
                   },
                 ].map((sample, idx) => (
                   <button
@@ -237,7 +250,8 @@ export const DetectionPage: React.FC = () => {
 
           {/* Cột thông tin chi tiết kết quả */}
           <div className="lg:col-span-5">
-            <DetectionResultCard result={result} onReset={handleClear} />
+            <DetectionResultCard result={result}
+              onSelectNew={() => newFileInput.current?.click()} onClear={handleClear} />
           </div>
         </div>
       )}

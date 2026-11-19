@@ -1,14 +1,15 @@
-# Cấu hình dataset huấn luyện mô hình YOLO
-path: ./dataset
-train: images/train
-val: images/val
-test: images/test
+# Cấu hình 7 detection classes của Roboflow YOLOv8 export version 1.
+# Dataset nằm cùng cấp với thư mục repository Smart-Waste-AI.
+train: ../../dataset.v1i.yolov8/train/images
+val: ../../dataset.v1i.yolov8/valid/images
+test: ../../dataset.v1i.yolov8/test/images
 
-# 5 Nhóm rác chính
-nc: 5
+nc: 7
 names:
-  0: plastic
-  1: paper
+  0: banana-peel
+  1: glass
   2: metal
-  3: glass
-  4: organic
+  3: orange-peel
+  4: paper
+  5: plastic
+  6: styrofoam

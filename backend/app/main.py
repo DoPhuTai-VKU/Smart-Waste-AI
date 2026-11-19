@@ -1,7 +1,19 @@
-import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
+from app.config import load_settings
+from app.db import create_db_engine, create_session_factory
+from app.storage import ImageStorage
+from app.inference import InferenceService
+from app.predict import router as predict_router
+from app.history import router as history_router
+from app.dashboard import router as dashboard_router
+
+
+settings = load_settings()
+storage = ImageStorage(settings.uploads_dir)
+db_engine = create_db_engine(settings)
 
 app = FastAPI(
     title="Smart Waste AI API",
@@ -22,9 +34,15 @@ app.add_middleware(
 )
 
 # Phục vụ thư mục ảnh tĩnh để Frontend có thể hiển thị ảnh qua URL
-uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
-os.makedirs(uploads_dir, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+app.state.settings = settings
+app.state.storage = storage
+app.state.db_engine = db_engine
+app.state.db_session_factory = create_session_factory(db_engine)
+app.state.inference = InferenceService(settings)
+app.mount("/uploads", StaticFiles(directory=settings.uploads_dir), name="uploads")
+app.include_router(predict_router, prefix="/api", tags=["Prediction"])
+app.include_router(history_router, prefix="/api", tags=["History"])
+app.include_router(dashboard_router, prefix="/api", tags=["Dashboard"])
 
 
 @app.get("/")

@@ -1,12 +1,10 @@
 import React from 'react';
 import {
-  CheckCircle2,
   Trash2,
   Leaf,
-  Info,
   Clock,
   Sparkles,
-  RotateCcw,
+  ImagePlus,
 } from 'lucide-react';
 import type { PredictionResponse } from '../../types/waste';
 import { CategoryBadge } from '../common/Badge';
@@ -14,12 +12,14 @@ import { getCategoryInfo } from '../../constants/wasteCategories';
 
 interface DetectionResultCardProps {
   result: PredictionResponse;
-  onReset: () => void;
+  onSelectNew: () => void;
+  onClear: () => void;
 }
 
 export const DetectionResultCard: React.FC<DetectionResultCardProps> = ({
   result,
-  onReset,
+  onSelectNew,
+  onClear,
 }) => {
   const catInfo = getCategoryInfo(result.primary_category);
   const confidencePercent = Math.round(result.confidence * 100);
@@ -48,13 +48,16 @@ export const DetectionResultCard: React.FC<DetectionResultCardProps> = ({
           </h3>
         </div>
 
-        <button
-          onClick={onReset}
-          className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
-        >
-          <RotateCcw size={16} />
-          Nhận diện ảnh khác
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={onSelectNew}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer">
+            <ImagePlus size={16} /> Chọn ảnh mới
+          </button>
+          <button type="button" onClick={onClear}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer">
+            Xóa khỏi màn hình
+          </button>
+        </div>
       </div>
 
       {/* Confidence Meter */}
@@ -79,7 +82,7 @@ export const DetectionResultCard: React.FC<DetectionResultCardProps> = ({
         </p>
       </div>
 
-      {/* Quy chuẩn phân loại thùng rác */}
+      {/* Hướng dẫn xử lý và màu nhận diện */}
       <div
         className="p-5 rounded-2xl border flex items-start gap-4 transition-all"
         style={{
@@ -88,19 +91,19 @@ export const DetectionResultCard: React.FC<DetectionResultCardProps> = ({
         }}
       >
         <div
-          className="p-3 rounded-2xl text-white shrink-0 mt-0.5 shadow-xs"
+          className="p-3 rounded-2xl shrink-0 mt-0.5 shadow-xs"
           style={{ backgroundColor: catInfo.binHex }}
         >
-          <Trash2 size={24} />
+          <Trash2 size={24} color={catInfo.key === 'styrofoam' ? '#334155' : '#FFFFFF'} />
         </div>
         <div className="space-y-1.5 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-extrabold text-base text-slate-900">
-              Quy chuẩn thùng thu gom:
+              Màu nhận diện:
             </span>
             <span
-              className="text-xs sm:text-sm font-bold px-3 py-0.5 rounded-lg text-white shadow-2xs"
-              style={{ backgroundColor: catInfo.binHex }}
+              className="text-xs sm:text-sm font-bold px-3 py-0.5 rounded-lg shadow-2xs"
+              style={{ backgroundColor: catInfo.binHex, color: catInfo.key === 'styrofoam' ? '#334155' : '#FFFFFF' }}
             >
               {catInfo.binColorName}
             </span>
@@ -126,35 +129,30 @@ export const DetectionResultCard: React.FC<DetectionResultCardProps> = ({
       {result.predictions && result.predictions.length > 0 && (
         <div className="space-y-2.5 pt-1">
           <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-slate-600">
-            <span>Chi tiết các vật thể phát hiện ({result.predictions.length})</span>
-            <span className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
-              <Info size={14} /> Bounding Box
-            </span>
+            <span>Tất cả vật thể phát hiện ({result.predictions.length})</span>
           </div>
 
-          <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden">
-            {result.predictions.map((pred, i) => (
-              <div
-                key={pred.id || i}
-                className="p-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors"
-              >
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-                  <span className="font-bold text-slate-800 text-sm">{pred.label}</span>
-                  <CategoryBadge category={pred.category} size="sm" />
+          <div className="space-y-3">
+            {result.predictions.map((pred, i) => {
+              const info = getCategoryInfo(pred.category);
+              return (
+                <div key={pred.id || i} className="p-4 border border-slate-200 rounded-2xl space-y-3"
+                  style={{ borderLeftWidth: 4, borderLeftColor: info.chartColor }}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-extrabold text-slate-900">#{i + 1} {pred.label}</span>
+                      <CategoryBadge category={pred.category} size="sm" />
+                    </div>
+                    <span className="font-extrabold text-slate-800">{(pred.confidence * 100).toFixed(1)}%</span>
+                  </div>
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    <span className="font-bold">Hướng dẫn xử lý: </span>
+                    {pred.treatment_guide || info.defaultGuide}
+                  </p>
+                  {pred.bbox && <p className="font-mono text-xs text-slate-500">Box: [{pred.bbox.join(', ')}]</p>}
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-slate-700 font-extrabold text-sm">
-                    {(pred.confidence * 100).toFixed(1)}%
-                  </span>
-                  {pred.bbox && (
-                    <span className="font-mono text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-semibold">
-                      [{pred.bbox.join(', ')}]
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

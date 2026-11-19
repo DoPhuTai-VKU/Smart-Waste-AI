@@ -1,7 +1,7 @@
 import React from 'react';
 import type { HistoryItem } from '../../types/waste';
 import { CategoryBadge } from '../common/Badge';
-import { Eye, ChevronLeft, ChevronRight, Inbox, Clock } from 'lucide-react';
+import { Eye, Trash2, ChevronLeft, ChevronRight, Inbox, Clock } from 'lucide-react';
 
 interface HistoryTableProps {
   items: HistoryItem[];
@@ -10,6 +10,8 @@ interface HistoryTableProps {
   limit: number;
   onPageChange: (page: number) => void;
   onSelectItem: (item: HistoryItem) => void;
+  onDeleteItem: (item: HistoryItem) => void;
+  deletingId?: string | number | null;
   loading?: boolean;
 }
 
@@ -20,6 +22,8 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   limit,
   onPageChange,
   onSelectItem,
+  onDeleteItem,
+  deletingId = null,
   loading = false,
 }) => {
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -100,13 +104,18 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                   <span className="text-xs font-mono font-bold text-slate-400">
                     #{item.id}
                   </span>
-                  <button
-                    onClick={() => onSelectItem(item)}
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-3.5 py-2 rounded-xl transition-colors cursor-pointer"
-                  >
-                    <Eye size={16} />
-                    Xem chi tiết
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button type="button" onClick={() => onSelectItem(item)}
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-3.5 py-2 rounded-xl transition-colors cursor-pointer">
+                      <Eye size={16} /> Xem chi tiết
+                    </button>
+                    <button type="button" onClick={() => onDeleteItem(item)}
+                      disabled={deletingId !== null}
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 px-3.5 py-2 rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label={`Xóa lịch sử #${item.id}`}>
+                      <Trash2 size={16} /> {String(deletingId) === String(item.id) ? 'Đang xóa...' : 'Xóa'}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

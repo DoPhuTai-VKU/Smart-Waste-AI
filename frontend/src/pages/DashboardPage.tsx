@@ -171,7 +171,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
       <div className="bg-white rounded-3xl p-6 lg:p-7 border border-slate-200/90 shadow-xs space-y-5">
         <div>
           <h4 className="text-lg lg:text-xl font-extrabold text-slate-900">
-            5 Nhóm rác chính được hệ thống nhận dạng
+            7 Nhóm rác được hệ thống nhận dạng
           </h4>
           <p className="text-sm font-medium text-slate-500 mt-0.5">
             Hỗ trợ phân loại tại nguồn theo quy chuẩn bảo vệ môi trường

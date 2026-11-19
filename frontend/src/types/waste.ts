@@ -1,4 +1,12 @@
-export type WasteCategoryKey = 'plastic' | 'paper' | 'metal' | 'glass' | 'organic' | string;
+export type WasteCategoryKey =
+  | 'banana-peel'
+  | 'glass'
+  | 'metal'
+  | 'orange-peel'
+  | 'paper'
+  | 'plastic'
+  | 'styrofoam'
+  | string;
 
 export interface WasteCategoryInfo {
   key: WasteCategoryKey;

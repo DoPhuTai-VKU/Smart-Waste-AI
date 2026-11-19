@@ -62,7 +62,7 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
           </div>
         </div>
 
-        {/* Thùng rác quy chuẩn */}
+        {/* Hướng dẫn xử lý và màu nhận diện */}
         <div
           className="p-5 rounded-2xl border flex items-start gap-4"
           style={{
@@ -71,14 +71,14 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
           }}
         >
           <div
-            className="p-3 rounded-2xl text-white shrink-0 mt-0.5 shadow-xs"
+            className="p-3 rounded-2xl shrink-0 mt-0.5 shadow-xs"
             style={{ backgroundColor: catInfo.binHex }}
           >
-            <Trash2 size={22} />
+            <Trash2 size={22} color={catInfo.key === 'styrofoam' ? '#334155' : '#FFFFFF'} />
           </div>
           <div className="space-y-1.5">
             <span className="text-base font-extrabold text-slate-900">
-              Quy chuẩn: {catInfo.binColorName}
+              {catInfo.binColorName}
             </span>
             <p className="text-sm font-medium text-slate-700 leading-relaxed">
               {item.treatment_guide || catInfo.defaultGuide}
@@ -94,6 +94,34 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
               <span className="font-extrabold text-emerald-900">Ý nghĩa phân loại: </span>
               <span>{catInfo.environmentalImpact}</span>
             </div>
+          </div>
+        )}
+
+        {item.predictions && item.predictions.length > 0 && (
+          <div className="space-y-3">
+            <h5 className="font-extrabold text-slate-900">
+              Tất cả vật thể phát hiện ({item.predictions.length})
+            </h5>
+            {item.predictions.map((pred, index) => {
+              const info = getCategoryInfo(pred.category);
+              return (
+                <div key={pred.id || index} className="p-4 rounded-2xl border border-slate-200 space-y-2"
+                  style={{ borderLeftWidth: 4, borderLeftColor: info.chartColor }}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-extrabold text-slate-900">#{index + 1} {pred.label}</span>
+                      <CategoryBadge category={pred.category} size="sm" />
+                    </div>
+                    <span className="font-extrabold text-slate-800">{(pred.confidence * 100).toFixed(1)}%</span>
+                  </div>
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    <span className="font-bold">Hướng dẫn xử lý: </span>
+                    {pred.treatment_guide || info.defaultGuide}
+                  </p>
+                  {pred.bbox && <p className="font-mono text-xs text-slate-500">Box: [{pred.bbox.join(', ')}]</p>}
+                </div>
+              );
+            })}
           </div>
         )}
 

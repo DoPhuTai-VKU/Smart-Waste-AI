@@ -10,7 +10,7 @@ export const INITIAL_MOCK_HISTORY: HistoryItem[] = [
     category: 'plastic',
     confidence: 0.96,
     created_at: '2026-11-02 16:45:12',
-    treatment_guide: 'Súc sạch chất lỏng dư thừa, vặn nắp và nén dẹp trước khi cho vào thùng rác tái chế màu vàng/cam.',
+    treatment_guide: 'Làm sạch, để khô và phân loại theo khả năng thu gom tại địa phương.',
     predictions: [
       {
         id: '1',
@@ -67,18 +67,18 @@ export const INITIAL_MOCK_HISTORY: HistoryItem[] = [
     original_image_url: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=600&q=80',
     processed_image_url: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=600&q=80',
     primary_label: 'Vỏ chuối & thức ăn thừa',
-    category: 'organic',
+    category: 'banana-peel',
     confidence: 0.89,
     created_at: '2026-11-02 11:35:10',
-    treatment_guide: 'Thu gom vào thùng rác hữu cơ màu xanh lá cây hoặc dùng làm nguyên liệu ủ phân sinh học.',
+    treatment_guide: 'Thu gom riêng cùng rác hữu cơ; có thể ủ phân nếu phù hợp.',
     predictions: [
       {
         id: '1',
         label: 'Vỏ chuối',
-        category: 'organic',
+        category: 'banana-peel',
         confidence: 0.89,
         bbox: [70, 110, 420, 390],
-        treatment_guide: 'Rác hữu cơ dễ phân hủy sinh học, tránh để lâu bốc mùi.',
+        treatment_guide: 'Thu gom riêng cùng rác hữu cơ; có thể ủ phân nếu phù hợp.',
       },
     ],
   },
@@ -168,11 +168,13 @@ export const INITIAL_MOCK_DASHBOARD_STATS: DashboardStatsResponse = {
   average_confidence: 94.2,
   today_scans: 28,
   category_counts: [
-    { category: 'Rác nhựa', categoryKey: 'plastic', count: 486, percentage: 39, color: '#F59E0B' },
-    { category: 'Rác giấy', categoryKey: 'paper', count: 312, percentage: 25, color: '#3B82F6' },
-    { category: 'Kim loại', categoryKey: 'metal', count: 198, percentage: 16, color: '#64748B' },
-    { category: 'Thủy tinh', categoryKey: 'glass', count: 142, percentage: 11, color: '#10B981' },
-    { category: 'Rác hữu cơ', categoryKey: 'organic', count: 110, percentage: 9, color: '#84CC16' },
+    { category: 'Nhựa', categoryKey: 'plastic', count: 386, percentage: 31, color: '#3B82F6' },
+    { category: 'Giấy', categoryKey: 'paper', count: 312, percentage: 25, color: '#C4A484' },
+    { category: 'Kim loại', categoryKey: 'metal', count: 198, percentage: 16, color: '#9CA3AF' },
+    { category: 'Thủy tinh', categoryKey: 'glass', count: 142, percentage: 11, color: '#67C5B5' },
+    { category: 'Vỏ chuối', categoryKey: 'banana-peel', count: 55, percentage: 4, color: '#D4A017' },
+    { category: 'Vỏ cam', categoryKey: 'orange-peel', count: 55, percentage: 4, color: '#F97316' },
+    { category: 'Xốp EPS', categoryKey: 'styrofoam', count: 100, percentage: 8, color: '#E5E7EB' },
   ],
   time_series: [
     { date: '27/10', count: 32 },
@@ -198,7 +200,7 @@ export function generateMockPrediction(imageUrl: string, _filename?: string): Pr
     {
       category: 'plastic',
       label: 'Chai nhựa Polyethylene (PET)',
-      guide: 'Làm rỗng chất lỏng, tháo nắp chai riêng và bỏ vào thùng rác tái chế màu vàng.',
+      guide: 'Làm sạch, để khô và phân loại theo khả năng thu gom tại địa phương.',
     },
     {
       category: 'paper',
@@ -216,9 +218,19 @@ export function generateMockPrediction(imageUrl: string, _filename?: string): Pr
       guide: 'Rửa sạch cặn thức ăn, để khô và phân loại vào thùng rác thủy tinh.',
     },
     {
-      category: 'organic',
-      label: 'Thức ăn thừa & Rau củ',
-      guide: 'Phân loại riêng để ủ phân vi sinh (compost) hoặc phục vụ chăn nuôi.',
+      category: 'banana-peel',
+      label: 'Vỏ chuối',
+      guide: 'Thu gom riêng cùng rác hữu cơ; có thể ủ phân nếu phù hợp.',
+    },
+    {
+      category: 'orange-peel',
+      label: 'Vỏ cam',
+      guide: 'Thu gom cùng rác hữu cơ; bỏ tem, bao bì trước khi ủ phân.',
+    },
+    {
+      category: 'styrofoam',
+      label: 'Xốp EPS',
+      guide: 'Giữ sạch, khô; kiểm tra điểm thu gom chuyên biệt.',
     },
   ];
 

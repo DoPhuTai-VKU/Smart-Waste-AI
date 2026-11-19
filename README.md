@@ -67,7 +67,7 @@ uvicorn app.main:app --reload --port 8000
 ### 3. Cài đặt Cơ sở dữ liệu MySQL
 1. Mở MySQL Workbench hoặc phpMyAdmin.
 2. Chạy file [`database/schema.sql`](database/schema.sql) để tạo cơ sở dữ liệu `smart_waste_db` và các bảng.
-3. Chạy file [`database/seed_data.sql`](database/seed_data.sql) để nạp 5 nhóm rác mẫu.
+3. Chạy file [`database/seed_data.sql`](database/seed_data.sql) để nạp 7 waste categories tương ứng 7 lớp YOLO.
 4. Cập nhật thông tin tài khoản MySQL vào file `backend/.env`.
 
 ---
@@ -75,3 +75,29 @@ uvicorn app.main:app --reload --port 8000
 ## 📑 Tài liệu Đặc tả Kết nối API
 Xem chi tiết quy chuẩn các Endpoint, tham số và định dạng JSON tại:  
 👉 [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md)
+
+---
+
+## Chạy toàn bộ hệ thống trên Windows PowerShell
+
+1. Khởi động MySQL và chắc chắn đã chạy `database/schema.sql`, `database/seed_data.sql`. Tạo `backend/.env` từ `backend/.env.example`, điền tài khoản MySQL trên máy. Không đưa mật khẩu vào Git.
+2. Đặt model đã train tại `backend/weights/best.pt`.
+3. Mở PowerShell thứ nhất và chạy Backend:
+
+```powershell
+cd D:\Learning\AI\Smart-Waste-AI\backend
+.\venv\python.exe -m uvicorn app.main:app --reload --port 8000
+```
+
+4. Mở PowerShell thứ hai và chạy Frontend:
+
+```powershell
+cd D:\Learning\AI\Smart-Waste-AI\frontend
+npm.cmd ci
+npm.cmd run dev
+```
+
+5. Mở `http://localhost:5173`, chuyển công tắc ở Header sang **Live FastAPI**. Nếu đã dùng Demo trước đó, công tắc này cần được chuyển thủ công vì lựa chọn được lưu trong trình duyệt.
+6. Tải ảnh JPEG, PNG hoặc WEBP (tối đa 10 MB) ở trang nhận diện. Kết quả thành công xuất hiện trong Lịch sử và số liệu Dashboard sau khi làm mới. Ảnh không phát hiện được một trong bảy nhãn ở ngưỡng confidence cấu hình sẽ nhận thông báo lỗi 422.
+
+Lần dự đoán đầu có thể lâu hơn do Backend nạp model. Frontend chờ tối đa 120 giây cho riêng yêu cầu dự đoán.

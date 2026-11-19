@@ -17,7 +17,7 @@ export const GuidePage: React.FC = () => {
           Quy chuẩn phân loại rác thải tại nguồn
         </h2>
         <p className="text-sm font-medium text-slate-500 mt-1">
-          Hướng dẫn nhận biết màu thùng rác, cách xử lý sơ bộ và giá trị bảo vệ môi trường
+          Hướng dẫn nhận biết từng loại rác, cách xử lý sơ bộ và giá trị bảo vệ môi trường
         </p>
       </div>
 
@@ -36,7 +36,7 @@ export const GuidePage: React.FC = () => {
                 </span>
               </div>
 
-              {/* Thùng rác tương ứng */}
+              {/* Màu nhận diện vật liệu */}
               <div
                 className="p-4 rounded-2xl border flex items-center gap-3.5 text-sm"
                 style={{
@@ -45,17 +45,17 @@ export const GuidePage: React.FC = () => {
                 }}
               >
                 <div
-                  className="p-3 rounded-2xl text-white shrink-0 shadow-xs"
+                  className="p-3 rounded-2xl shrink-0 shadow-xs"
                   style={{ backgroundColor: cat.binHex }}
                 >
-                  <Trash2 size={22} />
+                  <Trash2 size={22} color={cat.key === 'styrofoam' ? '#334155' : '#FFFFFF'} />
                 </div>
                 <div>
                   <span className="font-extrabold text-slate-900 block text-base">
                     {cat.binColorName}
                   </span>
                   <span className="text-xs font-semibold text-slate-600">
-                    Thùng chứa chuyên dụng
+                    Màu nhận diện trên giao diện
                   </span>
                 </div>
               </div>
